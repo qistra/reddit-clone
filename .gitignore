@@ -25,4 +25,6 @@ hs_err_pid*
 .idea
 target
 
+application.properties
+
 .DS_Store
