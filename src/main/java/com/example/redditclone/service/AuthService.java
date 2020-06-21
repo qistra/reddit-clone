@@ -1,6 +1,7 @@
 package com.example.redditclone.service;
 
 import com.example.redditclone.dto.RegisterRequest;
+import com.example.redditclone.model.NotificationEmail;
 import com.example.redditclone.model.User;
 import com.example.redditclone.model.VerificationToken;
 import com.example.redditclone.repository.UserRepository;
@@ -20,6 +21,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     private UserRepository userRepository;
     private VerificationTokenRepository verificationTokenRepository;
+    private MailService mailService;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -28,12 +30,18 @@ public class AuthService {
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .created(Instant.now())
-                .enabled(true)
+                .enabled(false) // enable new users after they verify email
                 .build();
 
         userRepository.save(user);
 
         String token = generateVerificationToken(user);
+        mailService.sendMail(new NotificationEmail(
+                "Please activate your account",
+                user.getEmail(),
+                "Thank you for signing up to Reddit Clone, " +
+                        "please click on the url below to activate your account" +
+                        "Http://localhost:9000/api/auth/accountVerification/" + token));
     }
 
     private String generateVerificationToken(User user) {
