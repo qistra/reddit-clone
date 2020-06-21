@@ -1,0 +1,13 @@
+com/example/redditclone/model/Post.class
+com/example/redditclone/model/VerificationToken.class
+com/example/redditclone/model/User.class
+com/example/redditclone/model/Post$PostBuilder.class
+com/example/redditclone/model/Vote.class
+com/example/redditclone/model/Vote$VoteBuilder.class
+com/example/redditclone/model/RefreshToken.class
+com/example/redditclone/model/VoteType.class
+com/example/redditclone/RedditCloneApplication.class
+com/example/redditclone/model/Subreddit$SubredditBuilder.class
+com/example/redditclone/model/Subreddit.class
+com/example/redditclone/model/Comment.class
+com/example/redditclone/model/NotificationEmail.class
