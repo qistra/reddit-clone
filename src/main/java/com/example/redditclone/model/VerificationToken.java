@@ -1,6 +1,7 @@
 package com.example.redditclone.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,14 +15,18 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "token")
 public class VerificationToken {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+
     private String token;
+
     @OneToOne(fetch = LAZY)
     private User user;
+
     private Instant expiryDate;
 }
