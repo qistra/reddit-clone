@@ -1,5 +1,6 @@
 package com.example.redditclone.controller;
 
+import com.example.redditclone.dto.LoginRequest;
 import com.example.redditclone.dto.RegisterRequest;
 import com.example.redditclone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,8 @@ public class AuthController {
         return new ResponseEntity<>("Account verified successfully", OK);
     }
 
+    @PostMapping("/login")
+    public void login(@RequestBody LoginRequest loginRequest) {
+        authService.login(loginRequest);
+    }
 }

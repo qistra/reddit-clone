@@ -1,5 +1,6 @@
 package com.example.redditclone.service;
 
+import com.example.redditclone.dto.LoginRequest;
 import com.example.redditclone.dto.RegisterRequest;
 import com.example.redditclone.exception.SpringRedditException;
 import com.example.redditclone.model.NotificationEmail;
@@ -8,6 +9,8 @@ import com.example.redditclone.model.VerificationToken;
 import com.example.redditclone.repository.UserRepository;
 import com.example.redditclone.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ public class AuthService {
     private UserRepository userRepository;
     private VerificationTokenRepository verificationTokenRepository;
     private MailService mailService;
+    private AuthenticationManager authenticationManager;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -47,6 +51,22 @@ public class AuthService {
                         "Http://localhost:9000/api/auth/accountVerification/" + token));
     }
 
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
+        verificationToken.orElseThrow(() -> new SpringRedditException("Invalid token"));
+
+        fetchAndEnableUser(verificationToken.get());
+    }
+
+    public void login(LoginRequest loginRequest) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+    }
+
     private String generateVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = VerificationToken.builder()
@@ -57,13 +77,6 @@ public class AuthService {
         verificationTokenRepository.save(verificationToken);
 
         return token;
-    }
-
-    public void verifyAccount(String token) {
-        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
-        verificationToken.orElseThrow(() -> new SpringRedditException("Invalid token"));
-
-        fetchAndEnableUser(verificationToken.get());
     }
 
     @Transactional
