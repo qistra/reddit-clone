@@ -14,3 +14,5 @@ spring.mail.host=smtp.mailtrap.io
 spring.mail.port=25
 spring.mail.username=<username>
 spring.mail.password=<password>
+########## secret properties ##########
+pk.password=<secret>
