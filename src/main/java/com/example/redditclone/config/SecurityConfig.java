@@ -1,5 +1,6 @@
 package com.example.redditclone.config;
 
+import com.example.redditclone.security.JwtValidationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,12 +12,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
+    private final JwtValidationFilter jwtValidationFilter;
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
@@ -26,6 +29,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest()
                 .authenticated();
+
+        httpSecurity.addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     public void configureAuth(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {

@@ -1,4 +1,4 @@
-package com.example.redditclone.service.jwt;
+package com.example.redditclone.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,11 +34,12 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             String username = jwtProvider.getUsernameFromJwt(jwt);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(null,
-                    userDetails.getAuthorities());
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(null,
+                            userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
@@ -47,7 +48,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
     private String getJwtFromRequest(HttpServletRequest httpServletRequest) {
         String bearerToken = httpServletRequest.getHeader("Authorization");
 
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("bearer")) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.toLowerCase().startsWith("bearer")) {
             return bearerToken.substring("bearer".length() + 1);
         }
 

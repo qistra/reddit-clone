@@ -1,4 +1,4 @@
-package com.example.redditclone.service.jwt;
+package com.example.redditclone.security;
 
 import com.example.redditclone.exception.SpringRedditException;
 import io.jsonwebtoken.Claims;
@@ -63,7 +63,7 @@ public class JwtProvider {
 
     private PublicKey getPublicKey() {
         try {
-            return (PublicKey) keyStore.getCertificate("reddit-clone").getPublicKey();
+            return keyStore.getCertificate("reddit-clone").getPublicKey();
         } catch (KeyStoreException e) {
             throw new SpringRedditException("Exception occurred while retrieving public key from keystore");
         }
