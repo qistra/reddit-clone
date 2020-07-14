@@ -1,6 +1,8 @@
 package com.example.redditclone.service;
 
 import com.example.redditclone.dto.SubredditDTO;
+import com.example.redditclone.exception.SpringRedditException;
+import com.example.redditclone.mapper.SubredditMapper;
 import com.example.redditclone.model.Subreddit;
 import com.example.redditclone.repository.SubredditRepository;
 import lombok.AllArgsConstructor;
@@ -17,11 +19,11 @@ import java.util.stream.Collectors;
 public class SubredditService {
 
     private SubredditRepository subredditRepository;
+    private SubredditMapper subredditMapper;
 
     @Transactional
     public SubredditDTO save(SubredditDTO subredditDTO) {
-        Subreddit subreddit = mapSubredditRequestToModel(subredditDTO);
-        Subreddit savedSubreddit = subredditRepository.save(subreddit);
+        Subreddit savedSubreddit = subredditRepository.save(subredditMapper.mapDtoToSubreddit(subredditDTO));
         subredditDTO.setId(savedSubreddit.getId());
 
         return subredditDTO;
@@ -31,24 +33,14 @@ public class SubredditService {
     public List<SubredditDTO> getAll() {
         return subredditRepository.findAll()
                 .stream()
-                .map(this::mapToDto)
+                .map(subredditMapper::mapSubredditToDto)
                 .collect(Collectors.toList());
     }
 
-    private SubredditDTO mapToDto(Subreddit subreddit) {
-        return SubredditDTO.builder()
-                .id(subreddit.getId())
-                .name(subreddit.getName())
-                .description(subreddit.getDescription())
-                .numberOfPosts(subreddit.getPosts().size())
-                .build();
+    public SubredditDTO getSubreddit(Long id) {
+        Subreddit subreddit = subredditRepository
+                .findById(id)
+                .orElseThrow(() -> new SpringRedditException("Subreddit with id " + id + " not found"));
+        return subredditMapper.mapSubredditToDto(subreddit);
     }
-
-    private Subreddit mapSubredditRequestToModel(SubredditDTO subredditDTO) {
-        return Subreddit.builder()
-                .name(subredditDTO.getName())
-                .description(subredditDTO.getDescription())
-                .build();
-    }
-
 }
