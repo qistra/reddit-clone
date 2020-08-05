@@ -37,7 +37,7 @@ public class PostService {
 
         User currentUser = authService.getCurrentUser();
 
-        Post post = postMapper.mapToEntiry(postRequest, subreddit, currentUser);
+        Post post = postMapper.mapToModel(postRequest, subreddit, currentUser);
 
         return postMapper.mapToResponse(postRepository.save(post));
     }
