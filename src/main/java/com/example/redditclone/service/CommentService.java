@@ -1,17 +1,24 @@
 package com.example.redditclone.service;
 
 import com.example.redditclone.dto.CommentDTO;
+import com.example.redditclone.exception.CommentNotFoundException;
 import com.example.redditclone.exception.PostNotFoundException;
 import com.example.redditclone.mapper.CommentMapper;
 import com.example.redditclone.model.Comment;
 import com.example.redditclone.model.NotificationEmail;
 import com.example.redditclone.model.Post;
+import com.example.redditclone.model.User;
 import com.example.redditclone.repository.CommentRepository;
 import com.example.redditclone.repository.PostRepository;
 import com.example.redditclone.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,6 +33,7 @@ public class CommentService {
     private final MailService mailService;
     private final MailContentBuilder mailContentBuilder;
 
+    @Transactional
     public Comment save(CommentDTO commentDTO) {
         Post post = postRepository.findById(commentDTO.getPostId())
                 .orElseThrow(() -> new PostNotFoundException(commentDTO.getPostId().toString()));
@@ -41,5 +49,35 @@ public class CommentService {
 
         return savedComment;
 
+    }
+
+    @Transactional(readOnly = true)
+    public CommentDTO getComment(Long id) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new CommentNotFoundException(id.toString()));
+
+        return commentMapper.mapCommentToDto(comment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentDTO> getAllCommentsByPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id.toString()));
+
+        return commentRepository.findAllByPost(post)
+                .stream()
+                .map(commentMapper::mapCommentToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentDTO> getAllCommentsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+
+        return commentRepository.findAllByUser(user)
+                .stream()
+                .map(commentMapper::mapCommentToDto)
+                .collect(Collectors.toList());
     }
 }
