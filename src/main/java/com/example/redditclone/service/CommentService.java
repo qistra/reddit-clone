@@ -33,8 +33,7 @@ public class CommentService {
         Comment comment = commentMapper.mapDtoToComment(commentDTO, post, authService.getCurrentUser());
         Comment savedComment = commentRepository.save(comment);
 
-        String message = post.getUser().getUsername() + " posted a comment on your post";
-//        String message = mailContentBuilder.build(post.getUser().getUsername() + " posted a comment on your post ");
+        String message = mailContentBuilder.build(post.getUser().getUsername() + " posted a comment on your post ");
         mailService.sendMail(new NotificationEmail(
                 post.getUser().getUsername() + " commented on your post",
                 post.getUser().getEmail(),

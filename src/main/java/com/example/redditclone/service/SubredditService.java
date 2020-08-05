@@ -18,15 +18,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SubredditService {
 
-    private SubredditRepository subredditRepository;
-    private SubredditMapper subredditMapper;
+    private final SubredditRepository subredditRepository;
+    private final SubredditMapper subredditMapper;
+    private final AuthService authService;
 
     @Transactional
     public SubredditDTO save(SubredditDTO subredditDTO) {
-        Subreddit savedSubreddit = subredditRepository.save(subredditMapper.mapDtoToSubreddit(subredditDTO));
-        subredditDTO.setId(savedSubreddit.getId());
+        Subreddit savedSubreddit = subredditRepository.save(
+                subredditMapper.mapDtoToSubreddit(subredditDTO, authService.getCurrentUser()));
+//        subredditDTO.setId(savedSubreddit.getId());
 
-        return subredditDTO;
+        return subredditMapper.mapSubredditToDto(savedSubreddit);
     }
 
     @Transactional(readOnly = true)
