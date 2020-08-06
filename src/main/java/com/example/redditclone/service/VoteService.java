@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static com.example.redditclone.model.VoteType.DOWNVOTE;
 import static com.example.redditclone.model.VoteType.UPVOTE;
 
@@ -27,11 +29,9 @@ public class VoteService {
         Post post = postRepository.findById(voteDTO.getPostId())
                 .orElseThrow(() -> new PostNotFoundException(voteDTO.getPostId().toString()));
 
-        Vote vote = voteRepository.findTopByPostAndUserOrderByVoteIdDesc(post, authService.getCurrentUser())
-                .orElseThrow(() -> new SpringRedditException("Vote not found by Post with id " + post.getPostId() +
-                        " and by User with username " + authService.getCurrentUser().getUsername()));
+        Optional<Vote> vote = voteRepository.findTopByPostAndUserOrderByVoteIdDesc(post, authService.getCurrentUser());
 
-        if (vote.getVoteType().equals(voteDTO.getVoteType())) {
+        if (vote.isPresent() && vote.get().getVoteType().equals(voteDTO.getVoteType())) {
             throw new SpringRedditException("You have already " + voteDTO.getVoteType() + "d for this post");
         }
 
