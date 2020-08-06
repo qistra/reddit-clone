@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.time.Instant;
+import java.util.Date;
 
 import static io.jsonwebtoken.Jwts.parser;
 import static io.jsonwebtoken.Jwts.parserBuilder;
@@ -22,9 +24,11 @@ public class JwtProvider {
 
     private KeyStore keyStore;
 
-    @Value("${pk.password}")
+    @Value("${pubKey.password}")
     private String pubKeyPassword;
 
+    @Value("${jwt.expiration.time}")
+    private Long jwtExpirationTime;
 
     @PostConstruct
     public void init() {
@@ -38,12 +42,22 @@ public class JwtProvider {
 
     }
 
-    public String generateToken(Authentication authentication) {
+    public String generateJwtToken(Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
 
         return Jwts.builder()
                 .setSubject(principal.getUsername())
                 .signWith(getPrivateKey())
+                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationTime)))
+                .compact();
+    }
+
+    public String generateJwtTokenByUsername(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(Date.from(Instant.now()))
+                .signWith(getPrivateKey())
+                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationTime)))
                 .compact();
     }
 
@@ -77,5 +91,9 @@ public class JwtProvider {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public Long getJwtExpirationTime() {
+        return jwtExpirationTime;
     }
 }
